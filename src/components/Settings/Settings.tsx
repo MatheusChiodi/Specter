@@ -114,6 +114,20 @@ function Settings({ settings, onUpdate }: SettingsProps): JSX.Element {
           className={textInputClass}
         />
       </div>
+
+      {/* US-22: limiar de comando longo para notificação */}
+      <div className={fieldClass}>
+        <span className={labelClass}>Comando longo (ms)</span>
+        <input
+          type="number"
+          min={1000}
+          step={1000}
+          aria-label="Limiar de comando longo em milissegundos"
+          value={settings.longCommandMs}
+          onChange={(e) => onUpdate({ longCommandMs: Number(e.target.value) })}
+          className={textInputClass}
+        />
+      </div>
     </div>
   );
 }

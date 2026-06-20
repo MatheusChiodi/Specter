@@ -14,6 +14,8 @@ export interface SpawnOptions {
   args: string[];
   /** Diretório de trabalho inicial; `null` usa o default do processo. */
   cwd: string | null;
+  /** Variáveis de ambiente extras (pares chave/valor) — US-19. */
+  env: [string, string][];
   /** Linhas do terminal. */
   rows: number;
   /** Colunas do terminal. */

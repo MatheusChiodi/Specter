@@ -5,8 +5,10 @@ use std::io::{Read, Write};
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Mutex;
 use std::thread;
+use std::time::Instant;
 
 use portable_pty::{native_pty_system, Child, CommandBuilder, MasterPty};
+use serde::Serialize;
 
 use super::size::pty_size;
 use crate::error::{Result, SpecterError};
@@ -19,6 +21,17 @@ struct Session {
     child: Box<dyn Child + Send + Sync>,
     writer: Box<dyn Write + Send>,
     master: Box<dyn MasterPty + Send>,
+    shell: String,
+    started: Instant,
+}
+
+/// Metadados de uma sessão ativa, expostos ao front (US-27).
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SessionInfo {
+    pub id: SessionId,
+    pub shell: String,
+    pub uptime_ms: u64,
 }
 
 /// Mantém todas as sessões de PTY ativas da aplicação.
@@ -42,6 +55,7 @@ impl PtyManager {
         shell: &str,
         args: &[String],
         cwd: Option<&str>,
+        env: &[(String, String)],
         rows: u16,
         cols: u16,
         mut on_output: F,
@@ -60,6 +74,9 @@ impl PtyManager {
         }
         if let Some(dir) = cwd {
             cmd.cwd(dir);
+        }
+        for (key, value) in env {
+            cmd.env(key, value);
         }
 
         let child = pair
@@ -95,6 +112,8 @@ impl PtyManager {
                 child,
                 writer,
                 master: pair.master,
+                shell: shell.to_string(),
+                started: Instant::now(),
             },
         );
         Ok(id)
@@ -144,6 +163,21 @@ impl PtyManager {
         ids
     }
 
+    /// Metadados das sessões ativas (US-27).
+    pub fn sessions(&self) -> Vec<SessionInfo> {
+        let guard = self.sessions.lock().unwrap();
+        let mut infos: Vec<SessionInfo> = guard
+            .iter()
+            .map(|(id, s)| SessionInfo {
+                id: *id,
+                shell: s.shell.clone(),
+                uptime_ms: s.started.elapsed().as_millis() as u64,
+            })
+            .collect();
+        infos.sort_by_key(|info| info.id);
+        infos
+    }
+
     /// Encerra todas as sessões (chamado no shutdown da app).
     pub fn close_all(&self) {
         let mut guard = self.sessions.lock().unwrap();
@@ -190,7 +224,7 @@ mod tests {
         let mgr = PtyManager::new();
         let (tx, rx) = mpsc::channel();
         let id = mgr
-            .spawn("cmd.exe", &[], None, 24, 80, move |chunk| {
+            .spawn("cmd.exe", &[], None, &[], 24, 80, move |chunk| {
                 let _ = tx.send(chunk);
             })
             .expect("spawn deve funcionar");

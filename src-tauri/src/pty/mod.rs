@@ -7,4 +7,4 @@
 mod manager;
 mod size;
 
-pub use manager::{PtyManager, SessionId};
+pub use manager::{PtyManager, SessionId, SessionInfo};

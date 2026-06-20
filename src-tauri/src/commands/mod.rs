@@ -14,11 +14,12 @@ pub fn pty_spawn(
     shell: String,
     args: Vec<String>,
     cwd: Option<String>,
+    env: Vec<(String, String)>,
     rows: u16,
     cols: u16,
     on_output: Channel<Vec<u8>>,
 ) -> Result<SessionId> {
-    state.spawn(&shell, &args, cwd.as_deref(), rows, cols, move |chunk| {
+    state.spawn(&shell, &args, cwd.as_deref(), &env, rows, cols, move |chunk| {
         let _ = on_output.send(chunk);
     })
 }
@@ -45,6 +46,12 @@ pub fn pty_close(state: State<'_, PtyManager>, id: SessionId) -> Result<()> {
 #[tauri::command]
 pub fn pty_list(state: State<'_, PtyManager>) -> Vec<SessionId> {
     state.list()
+}
+
+/// Metadados das sessões ativas (US-27).
+#[tauri::command]
+pub fn pty_sessions(state: State<'_, PtyManager>) -> Vec<crate::pty::SessionInfo> {
+    state.sessions()
 }
 
 /// Aplica a exclusão de captura à janela que chamou o comando (US-04).

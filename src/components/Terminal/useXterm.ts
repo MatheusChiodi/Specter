@@ -1,4 +1,4 @@
-/** Hook que encapsula o ciclo de vida do xterm + PTY (US-01, busca em US-21). */
+/** Hook que encapsula o ciclo de vida do xterm + PTY (US-01, US-20/21/22/29). */
 import { useCallback, useEffect, useRef } from "react";
 import { Channel } from "@tauri-apps/api/core";
 import { Terminal } from "@xterm/xterm";
@@ -16,6 +16,11 @@ const THEME = {
   cursor: "#FF5555",
 } as const;
 
+/** Limite do buffer acumulado para export (US-20). */
+const MAX_BUFFER = 500_000;
+/** Ociosidade que marca o fim heurístico de um comando (US-22/29). */
+const IDLE_MS = 700;
+
 export interface UseXtermOptions {
   /** Diretório inicial da sessão; `null` usa o default do processo. */
   cwd?: string | null;
@@ -23,39 +28,43 @@ export interface UseXtermOptions {
   shell?: string;
   /** Comandos executados em ordem assim que a sessão abre (US-12). */
   initCommands?: string[];
+  /** Variáveis de ambiente extras (US-19). */
+  env?: [string, string][];
+  /**
+   * Chamado quando um comando "termina" (heurística por ociosidade do output):
+   * recebe o comando digitado e a duração em ms (US-22/29).
+   */
+  onCommandComplete?: (command: string, durationMs: number) => void;
 }
 
 export interface UseXtermResult {
-  /** Ref do container onde o xterm é montado. */
   containerRef: React.RefObject<HTMLDivElement | null>;
-  /** Ref da instância do terminal (null antes do mount). */
   termRef: React.RefObject<Terminal | null>;
-  /** Ref do SearchAddon, exposto para a busca futura (US-21). */
   searchRef: React.RefObject<SearchAddon | null>;
-  /** Ref do id da sessão de PTY ativa (null antes do spawn). */
   sessionRef: React.RefObject<SessionId | null>;
   /** Envia texto bruto ao PTY ativo (não adiciona Enter). */
   sendInput: (text: string) => void;
+  /** Retorna o conteúdo acumulado da sessão (para export — US-20). */
+  getBuffer: () => string;
 }
 
 /**
  * Cria o terminal, conecta-o ao PTY e gerencia o ciclo de vida.
- *
- * React 19 / StrictMode monta o effect duas vezes em dev. A guarda em
- * `termRef.current` evita criar um segundo terminal no double-mount; o
- * cleanup faz `dispose()` + `ptyClose()` para não vazar PTYs.
+ * Guarda contra double-mount do StrictMode; cleanup faz `dispose()`+`ptyClose()`.
  */
 export function useXterm(options: UseXtermOptions = {}): UseXtermResult {
-  const { cwd = null, shell = "powershell.exe", initCommands } = options;
+  const { cwd = null, shell = "powershell.exe", initCommands, env } = options;
 
   const containerRef = useRef<HTMLDivElement | null>(null);
   const termRef = useRef<Terminal | null>(null);
   const searchRef = useRef<SearchAddon | null>(null);
   const sessionRef = useRef<SessionId | null>(null);
+  const bufferRef = useRef<string>("");
 
-  // Opções em ref: o effect roda só no mount, mas precisa do valor atual.
-  const optsRef = useRef({ cwd, shell, initCommands });
-  optsRef.current = { cwd, shell, initCommands };
+  const optsRef = useRef({ cwd, shell, initCommands, env });
+  optsRef.current = { cwd, shell, initCommands, env };
+  const onCompleteRef = useRef(options.onCommandComplete);
+  onCompleteRef.current = options.onCommandComplete;
 
   const sendInput = useCallback((text: string): void => {
     const id = sessionRef.current;
@@ -64,8 +73,9 @@ export function useXterm(options: UseXtermOptions = {}): UseXtermResult {
     }
   }, []);
 
+  const getBuffer = useCallback((): string => bufferRef.current, []);
+
   useEffect(() => {
-    // Guarda contra double-mount do StrictMode.
     if (termRef.current || !containerRef.current) return;
 
     const term = new Terminal({ theme: THEME, cursorBlink: true });
@@ -81,9 +91,32 @@ export function useXterm(options: UseXtermOptions = {}): UseXtermResult {
     term.open(containerRef.current);
     fit.fit();
 
-    // Stream de saída do PTY → escreve no terminal preservando os bytes.
+    // Heurística de fim de comando (US-22/29): início no Enter, fim na ociosidade.
+    let currentLine = "";
+    let pendingCommand: string | null = null;
+    let commandStart = 0;
+    let idleTimer: ReturnType<typeof setTimeout> | null = null;
+
+    const scheduleIdleCheck = (): void => {
+      if (idleTimer) clearTimeout(idleTimer);
+      idleTimer = setTimeout(() => {
+        if (pendingCommand !== null && pendingCommand.length > 0) {
+          onCompleteRef.current?.(pendingCommand, Date.now() - commandStart);
+        }
+        pendingCommand = null;
+      }, IDLE_MS);
+    };
+
     const channel = new Channel<number[]>();
-    channel.onmessage = (bytes) => term.write(Uint8Array.from(bytes));
+    const decoder = new TextDecoder();
+    channel.onmessage = (bytes) => {
+      const chunk = Uint8Array.from(bytes);
+      term.write(chunk);
+      bufferRef.current = (
+        bufferRef.current + decoder.decode(chunk, { stream: true })
+      ).slice(-MAX_BUFFER);
+      if (pendingCommand !== null) scheduleIdleCheck();
+    };
 
     const encoder = new TextEncoder();
     let disposed = false;
@@ -91,6 +124,19 @@ export function useXterm(options: UseXtermOptions = {}): UseXtermResult {
     const inputDisposable = term.onData((data) => {
       const id = sessionRef.current;
       if (id !== null) void ptyWrite(id, Array.from(encoder.encode(data)));
+      // Acompanha a linha digitada para cronometrar o comando.
+      for (const ch of data) {
+        if (ch === "\r" || ch === "\n") {
+          pendingCommand = currentLine.trim();
+          currentLine = "";
+          commandStart = Date.now();
+          scheduleIdleCheck();
+        } else if (ch === "\x7f" || ch === "\b") {
+          currentLine = currentLine.slice(0, -1);
+        } else if (ch >= " ") {
+          currentLine += ch;
+        }
+      }
     });
 
     void ptySpawn(
@@ -98,6 +144,7 @@ export function useXterm(options: UseXtermOptions = {}): UseXtermResult {
         shell: optsRef.current.shell,
         args: [],
         cwd: optsRef.current.cwd,
+        env: optsRef.current.env ?? [],
         rows: term.rows,
         cols: term.cols,
       },
@@ -108,7 +155,6 @@ export function useXterm(options: UseXtermOptions = {}): UseXtermResult {
         return;
       }
       sessionRef.current = id;
-      // Comandos de init do perfil, em ordem (US-12).
       for (const cmd of optsRef.current.initCommands ?? []) {
         void ptyWrite(id, Array.from(encoder.encode(`${cmd}\r`)));
       }
@@ -123,6 +169,7 @@ export function useXterm(options: UseXtermOptions = {}): UseXtermResult {
 
     return () => {
       disposed = true;
+      if (idleTimer) clearTimeout(idleTimer);
       observer.disconnect();
       inputDisposable.dispose();
       const id = sessionRef.current;
@@ -134,5 +181,12 @@ export function useXterm(options: UseXtermOptions = {}): UseXtermResult {
     };
   }, []);
 
-  return { containerRef, termRef, searchRef, sessionRef, sendInput };
+  return {
+    containerRef,
+    termRef,
+    searchRef,
+    sessionRef,
+    sendInput,
+    getBuffer,
+  };
 }

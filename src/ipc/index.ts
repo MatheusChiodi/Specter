@@ -4,3 +4,5 @@ export * from "./window";
 export * from "./capture";
 export * from "./store";
 export * from "./actions";
+export * from "./env";
+export * from "./files";

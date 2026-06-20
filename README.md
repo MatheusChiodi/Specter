@@ -16,7 +16,7 @@ Local-first, zero-backend. Tudo roda na máquina.
 | **FASE 2.2** | Frontend core (terminal, botão flutuante, painel, seletor de pasta) + testes | ✅ **Finalizada** |
 | **FASE 2.3** | Produtividade (paleta, snippets, histórico, perfis, autocomplete, cheat sheet, quick actions) + testes | ✅ **Finalizada** |
 | **FASE 2.4** | Janela/stealth (atalho global, boss key, opacidade, temas) + testes | ✅ **Finalizada** |
-| FASE 2.5 | Sessões (abas, split, busca, log, notificação, processos, ambiente) + testes | ⏳ |
+| **FASE 2.5** | Sessões (abas, split, busca, log, notificação, processos, ambiente) + testes | ✅ **Finalizada** |
 | FASE 2.6 | Empacotamento no-admin (NSIS currentUser) + portátil | ⏳ |
 
 > **Gate de cada fase:** só avança com **testes unitários 100% verdes** e lógica sem erro. Ao concluir: README atualizado + commit + push.

@@ -130,3 +130,20 @@ status: em-andamento
 **Gate:** front `tsc` strict + **66/66** testes (14 arquivos: +Settings 5, +useShortcuts 5); back `cargo test` **11/11**, 0 warnings.
 
 ---
+
+## FASE 2.5 — Sessões ✅
+
+**Entregue:** 10 USs — US-10 (abas), US-11 (dirs), US-18 (ambiente), US-19 (env/.env), US-20 (export log), US-21 (busca), US-22 (notificação), US-23 (split), US-27 (processos), US-29 (cronômetro). **US-28 (drag&drop, P2 bônus)** fica como follow-up (depende da API de drag do webview Tauri).
+
+- **Rust:** `env_detect` (US-18, com `parse_version` testável), `files` read/write (US-19/20), `pty_sessions` + `SessionInfo` (US-27), `pty_spawn` com `env` (US-19), plugin-notification (US-22).
+- **Front fundação:** `ipc/env`, `ipc/files`, `SessionInfo` no `ipc/terminal`.
+- **Terminal:** buffer acumulado para export (US-20), handle de busca via SearchAddon (US-21), heurística de fim de comando por ociosidade (US-22/29), `env` no spawn (US-19).
+- **Panel (refatoração):** `useTabs` + `TabBar` (US-10), split em dois painéis (US-23), `SearchBar` (US-21), export via dialog `save` (US-20), `parseEnv` para `.env` de perfil (US-19), wiring de notificação/cronômetro (`onCommandComplete` → histórico + `sendNotification`), `ToolPanel` roteando 10 ferramentas. Abas inativas ficam `display:none` (preservam buffer e processo).
+
+**Orquestração:** 3 agentes (`env-dev`, `proc-dev`, `dirs-dev`) para os componentes isolados; integração (abas/split/busca/export/env/notif) pelo lead.
+
+**Marco:** **todos os 20 extras P1 (US-08..US-27) entregues** → DoD de extras cumprido. (+US-29 P2.)
+
+**Gate:** front `tsc` strict + **95/95** testes (21 arquivos); back `cargo test` **13/13** (11 + 2 de env parse), 0 warnings.
+
+---

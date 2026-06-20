@@ -14,6 +14,7 @@ export function ptySpawn(
     shell: opts.shell,
     args: opts.args,
     cwd: opts.cwd,
+    env: opts.env,
     rows: opts.rows,
     cols: opts.cols,
     onOutput,
@@ -42,4 +43,16 @@ export function ptyClose(id: SessionId): Promise<void> {
 /** Lista os ids das sessões ativas. */
 export function ptyList(): Promise<SessionId[]> {
   return invoke<SessionId[]>("pty_list");
+}
+
+/** Metadados de uma sessão ativa (US-27). */
+export interface SessionInfo {
+  id: SessionId;
+  shell: string;
+  uptimeMs: number;
+}
+
+/** Lista os metadados das sessões ativas. */
+export function ptySessions(): Promise<SessionInfo[]> {
+  return invoke<SessionInfo[]>("pty_sessions");
 }

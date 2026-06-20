@@ -15,6 +15,8 @@ export interface Settings {
   toggleShortcut: string;
   /** Boss key — oculta tudo (US-14), ex.: "Control+Shift+H". */
   bossKey: string;
+  /** Limiar (ms) para notificar a conclusão de um comando longo (US-22). */
+  longCommandMs: number;
 }
 
 /** Padrões da identidade Specter. */
@@ -25,6 +27,7 @@ export const DEFAULT_SETTINGS: Settings = {
   alwaysOnTop: true,
   toggleShortcut: "Control+Space",
   bossKey: "Control+Shift+H",
+  longCommandMs: 10000,
 };
 
 /** Limite mínimo de opacidade legível (US-16). */

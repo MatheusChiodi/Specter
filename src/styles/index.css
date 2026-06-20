@@ -1,0 +1,21 @@
+@import "tailwindcss";
+
+/* Tema base Specter — dark glassmorphism, accent #FF5555 (US-07/US-17). */
+@theme {
+  --color-accent: #ff5555;
+  --color-base: #0a0a0f;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--color-base);
+  color: #e5e7eb;
+  font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+  overflow: hidden;
+}

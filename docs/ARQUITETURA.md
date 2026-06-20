@@ -33,14 +33,15 @@ Versões validadas pelo researcher em **jun/2026** (npm registry + crates.io). V
 | Win32 (Rust) | `windows` | `0.62.2` | `SetWindowDisplayAffinity` (US-04), `hwnd()` |
 | | serde / serde_json | `1.x` | persistência JSON |
 | Front | `react` / `react-dom` | `19.2.7` | UI |
-| | `vite` | `7.x` | **decisão**: pinar a versão do `create-tauri-app` (Vite 8.0.16 existe, mas o template oficial escora em 7 → zero atrito). Migrar para 8 é follow-up. |
-| | `@vitejs/plugin-react` | `5.2.0` | par do **Vite 7** (decisão); o `6.0.2` é o par do Vite 8 — não misturar |
+| | `vite` | `7.3.5` | versão do `create-tauri-app` (Vite 8.0.16 existe; migrar é follow-up) |
+| | `vitest` + `@testing-library/react` | `3.2.6` / `16.3.2` | unit/componente no front (jsdom 26) |
+| | `@vitejs/plugin-react` | `4.7.0` | versão que o `create-tauri-app` pareia com Vite 7 (resolvida no scaffold da FASE 2.0) |
 | | `tailwindcss` + `@tailwindcss/vite` | `4.3.1` | v4: sem config obrigatória, plugin no Vite, `@import "tailwindcss";` |
-| | `typescript` | `6.0.3` | **strict, zero `any`** |
+| | `typescript` | `5.8.3` | **strict, zero `any`**; TS 6 existe, mantido o 5.8 do template (migração = follow-up) |
 | Testes | `vitest` + `@testing-library/react` | latest | unit/componente no front |
 | | `cargo test` (built-in) | — | unit no Rust |
 
-> **Decisão Vite:** scaffold via `create-tauri-app` (traz Vite 7 estável) + `@vitejs/plugin-react 5.2.0` (compatível com Vite 7; o 6.x é o par do Vite 8 e geraria lockfile inconsistente se pinado junto do Vite 7). Subir deps pontuais (React 19.2.7, Tailwind 4.3.1). Migrar para Vite 8.0.16 + plugin-react 6.0.2 fica como follow-up.
+> **Decisão Vite (verificada no scaffold):** `create-tauri-app` pareia **Vite 7.3.5 + @vitejs/plugin-react 4.7.0** — combinação testada pelo time Tauri, adotada para garantir build verde. React 19.2.7, Tailwind 4.3.1 e Vitest 3.2.6 resolvidos sem conflito no `pnpm install`. Migrar para Vite 8 + plugin-react 6 + TS 6 fica como follow-up.
 
 ### 1.2 Princípios
 - **Local-first / zero-backend.** Nenhum servidor; tudo na máquina.

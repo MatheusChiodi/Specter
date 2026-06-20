@@ -1,0 +1,23 @@
+[package]
+name = "specter"
+version = "0.1.0"
+description = "Specter — terminal flutuante stealth + launcher de Claude Code"
+authors = ["MChiodi"]
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+# O sufixo `_lib` evita conflito de nome entre a lib e o bin no Windows.
+# https://github.com/rust-lang/cargo/issues/8519
+name = "specter_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-opener = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"

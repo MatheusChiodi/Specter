@@ -1,0 +1,29 @@
+# Dependências
+node_modules/
+.pnpm-store/
+
+# Build front
+dist/
+dist-ssr/
+*.local
+
+# Build Rust / Tauri
+src-tauri/target/
+target/
+
+# Ambiente
+.env
+.env.*
+!.env.example
+
+# Editor / SO
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*

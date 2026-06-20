@@ -22,6 +22,7 @@
         "transparent": true,
         "alwaysOnTop": true,
         "center": true,
+        "shadow": false,
         "visible": true
       },
       {
@@ -36,6 +37,7 @@
         "alwaysOnTop": true,
         "skipTaskbar": true,
         "resizable": false,
+        "shadow": false,
         "visible": true
       }
     ],

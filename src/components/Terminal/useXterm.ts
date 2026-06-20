@@ -1,5 +1,5 @@
 /** Hook que encapsula o ciclo de vida do xterm + PTY (US-01, busca em US-21). */
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { Channel } from "@tauri-apps/api/core";
 import { Terminal } from "@xterm/xterm";
 import { FitAddon } from "@xterm/addon-fit";
@@ -21,6 +21,8 @@ export interface UseXtermOptions {
   cwd?: string | null;
   /** Executável do shell. */
   shell?: string;
+  /** Comandos executados em ordem assim que a sessão abre (US-12). */
+  initCommands?: string[];
 }
 
 export interface UseXtermResult {
@@ -32,6 +34,8 @@ export interface UseXtermResult {
   searchRef: React.RefObject<SearchAddon | null>;
   /** Ref do id da sessão de PTY ativa (null antes do spawn). */
   sessionRef: React.RefObject<SessionId | null>;
+  /** Envia texto bruto ao PTY ativo (não adiciona Enter). */
+  sendInput: (text: string) => void;
 }
 
 /**
@@ -42,17 +46,23 @@ export interface UseXtermResult {
  * cleanup faz `dispose()` + `ptyClose()` para não vazar PTYs.
  */
 export function useXterm(options: UseXtermOptions = {}): UseXtermResult {
-  const { cwd = null, shell = "powershell.exe" } = options;
+  const { cwd = null, shell = "powershell.exe", initCommands } = options;
 
   const containerRef = useRef<HTMLDivElement | null>(null);
   const termRef = useRef<Terminal | null>(null);
   const searchRef = useRef<SearchAddon | null>(null);
   const sessionRef = useRef<SessionId | null>(null);
 
-  // Opções em ref: o effect roda só no mount, mas precisa do valor atual
-  // sem recriar o terminal a cada render por mudança de prop.
-  const optsRef = useRef({ cwd, shell });
-  optsRef.current = { cwd, shell };
+  // Opções em ref: o effect roda só no mount, mas precisa do valor atual.
+  const optsRef = useRef({ cwd, shell, initCommands });
+  optsRef.current = { cwd, shell, initCommands };
+
+  const sendInput = useCallback((text: string): void => {
+    const id = sessionRef.current;
+    if (id !== null) {
+      void ptyWrite(id, Array.from(new TextEncoder().encode(text)));
+    }
+  }, []);
 
   useEffect(() => {
     // Guarda contra double-mount do StrictMode.
@@ -78,7 +88,6 @@ export function useXterm(options: UseXtermOptions = {}): UseXtermResult {
     const encoder = new TextEncoder();
     let disposed = false;
 
-    // `onData` só é ligado após o spawn resolver, garantindo um id válido.
     const inputDisposable = term.onData((data) => {
       const id = sessionRef.current;
       if (id !== null) void ptyWrite(id, Array.from(encoder.encode(data)));
@@ -94,15 +103,17 @@ export function useXterm(options: UseXtermOptions = {}): UseXtermResult {
       },
       channel,
     ).then((id) => {
-      // Se já desmontou antes do spawn resolver, fecha imediatamente.
       if (disposed) {
         void ptyClose(id);
         return;
       }
       sessionRef.current = id;
+      // Comandos de init do perfil, em ordem (US-12).
+      for (const cmd of optsRef.current.initCommands ?? []) {
+        void ptyWrite(id, Array.from(encoder.encode(`${cmd}\r`)));
+      }
     });
 
-    // Resize do container → reajusta o fit e propaga ao PTY.
     const observer = new ResizeObserver(() => {
       fit.fit();
       const id = sessionRef.current;
@@ -123,5 +134,5 @@ export function useXterm(options: UseXtermOptions = {}): UseXtermResult {
     };
   }, []);
 
-  return { containerRef, termRef, searchRef, sessionRef };
+  return { containerRef, termRef, searchRef, sessionRef, sendInput };
 }

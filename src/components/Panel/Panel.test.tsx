@@ -19,11 +19,14 @@ import { applyCaptureExclusion } from "../../ipc";
 describe("Panel", () => {
   beforeEach(() => vi.clearAllMocks());
 
-  it("compõe seletor de pasta, terminal e marca", async () => {
+  it("compõe seletor de pasta, terminal, marca e toolbar", async () => {
     render(<Panel />);
     expect(screen.getByTestId("folderpicker-mock")).toBeInTheDocument();
     expect(screen.getByTestId("terminal-mock")).toBeInTheDocument();
     expect(screen.getByText("MChiodi")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Comandos" }),
+    ).toBeInTheDocument();
     // Drena o efeito de stealth dentro de act para evitar warning.
     await waitFor(() => expect(applyCaptureExclusion).toHaveBeenCalled());
   });

@@ -14,7 +14,7 @@ Local-first, zero-backend. Tudo roda na máquina.
 | **FASE 2.0** | Scaffold (Tauri 2 + React 19 + Vite + TS + Tailwind 4) + setup de testes | ✅ **Finalizada** |
 | **FASE 2.1** | Backend core Rust (PTY/ConPTY, stealth, commands) + testes | ✅ **Finalizada** |
 | **FASE 2.2** | Frontend core (terminal, botão flutuante, painel, seletor de pasta) + testes | ✅ **Finalizada** |
-| FASE 2.3 | Produtividade (paleta, snippets, histórico, perfis, cheat sheet…) + testes | ⏳ |
+| **FASE 2.3** | Produtividade (paleta, snippets, histórico, perfis, autocomplete, cheat sheet, quick actions) + testes | ✅ **Finalizada** |
 | FASE 2.4 | Janela/stealth (atalho global, boss key, opacidade, temas) + testes | ⏳ |
 | FASE 2.5 | Sessões (abas, split, busca, log, notificação, processos, ambiente) + testes | ⏳ |
 | FASE 2.6 | Empacotamento no-admin (NSIS currentUser) + portátil | ⏳ |
@@ -39,6 +39,20 @@ docs/        US.md · ARQUITETURA.md (fonte de verdade da implementação)
 src/         frontend React (component-per-folder)
 src-tauri/   backend Rust (pty/ windows/ capture/ commands/ persistence/ …)
 ```
+
+## Produtividade (FASE 2.3)
+
+Módulos em `src/components/`, persistidos via `src/store/persist.ts` (JSON na store per-user):
+
+| Módulo | US | O que faz |
+|--------|----|-----------|
+| `CommandPalette/` | US-06 | Paleta de pré-comandos categorizada, busca textual, CRUD; clique insere ou executa (por `mode`). |
+| `History/` | US-08 | Histórico de comandos (cwd + timestamp), busca, reexecução, limpar total/por entrada. |
+| `Snippets/` | US-09 | Snippets/favoritos com rótulo, categoria e modo; placeholders `{nome}` preenchidos antes de acionar. |
+| `Profiles/` | US-12 | Perfis de projeto (nome + path + comandos de init + `.env` opcional); `onOpen` abre a sessão pronta. |
+| `Autocomplete/` | US-24 | Sugestões por prefixo a partir de histórico/snippets, navegáveis por teclado. |
+| `CheatSheet/` | US-25 | Cheat sheet do Claude Code, categorizado e pesquisável, com copiar/inserir. |
+| `QuickActions/` | US-26 | Ações sobre o cwd (Explorer, VS Code, copiar path), desabilitadas com tooltip quando a dependência falta. |
 
 ## Documentação
 

@@ -1,11 +1,14 @@
 //! Specter — backend Tauri.
 //!
 //! Módulos por responsabilidade: `pty` (ConPTY), `capture` (stealth Win32),
-//! `windowing` (janelas launcher/panel), `commands` (camada exposta) e `error`.
+//! `windowing` (janelas), `persistence` (JSON local), `actions` (quick actions),
+//! `commands` (camada exposta) e `error`.
 
+mod actions;
 mod capture;
 mod commands;
 mod error;
+mod persistence;
 mod pty;
 mod windowing;
 
@@ -31,6 +34,11 @@ pub fn run() {
             commands::pty_list,
             commands::apply_capture_exclusion,
             windowing::toggle_panel,
+            persistence::store_get,
+            persistence::store_set,
+            persistence::store_remove,
+            actions::open_in_explorer,
+            actions::open_in_vscode,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

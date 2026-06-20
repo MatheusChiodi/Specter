@@ -96,3 +96,21 @@ status: em-andamento
 **Gate:** front `tsc` strict limpo + **13/13** testes (Terminal 3, Launcher 2, FolderPicker 4, Panel 3, App 1); back `cargo test` **8/8**.
 
 ---
+
+## FASE 2.3 — Produtividade ✅
+
+**Entregue:** 6 features de produtividade + fundação de persistência, integradas no Panel.
+
+- **Fundação Rust:** `persistence/` (store `get/set/remove` JSON em `%LOCALAPPDATA%`, com `sanitize` de chave) e `actions/` (`open_in_explorer`, `open_in_vscode`). **Front:** `ipc/store.ts`, `ipc/actions.ts`, `store/persist.ts` (`loadJson/saveJson` tipados).
+- **Componentes** (component-per-folder, persistidos): `CommandPalette` (US-06), `Snippets` com placeholders `{nome}` (US-09), `History` (US-08), `Autocomplete` por prefixo (US-24), `Profiles` (US-12), `CheatSheet` (US-25), `QuickActions` (US-26).
+- **Integração:** `Terminal` expõe handle imperativo (`runCommand`/`insertText`) via **ref-como-prop do React 19**; `Panel` ganhou toolbar que abre cada ferramenta num painel lateral e fia `onInsert`/`onRun` ao terminal; perfis rodam os `initCommands` em ordem no spawn da sessão (US-12).
+
+**Orquestração (fan-out de 6 agentes):** `cmd-dev`, `snip-dev`, `hist-dev`, `prof-dev`, `cheat-dev`, `qa-dev` em paralelo durante o `cargo test`.
+
+**Aprendizado:** 2 agentes (`cmd-dev`, `snip-dev`) sinalizaram `idle/available` **sem terminar** (faltavam o componente/testes). O **gate do lead** (rodar a suíte + conferir a árvore) detectou as lacunas — não confiar no "idle" do agente como prova de conclusão; o que garante 100% é o gate. Os agentes retomaram e o lead consolidou.
+
+**Versões:** sem novas deps de runtime no front; backend reusa `serde_json` + Tauri path API.
+
+**Gate:** front `tsc` strict + **56/56** testes (12 arquivos); back `cargo test` **11/11** (8 + 3 de persistência), 0 warnings.
+
+---

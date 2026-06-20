@@ -13,6 +13,10 @@ pub enum SpecterError {
     Pty(String),
     /// Janela do Tauri não encontrada / sem handle nativo.
     WindowNotFound(String),
+    /// Falha de leitura/escrita na persistência local.
+    Persist(String),
+    /// Falha ao executar uma quick action de sistema.
+    Action(String),
 }
 
 impl fmt::Display for SpecterError {
@@ -21,6 +25,8 @@ impl fmt::Display for SpecterError {
             SpecterError::SessionNotFound(s) => write!(f, "sessão não encontrada: {s}"),
             SpecterError::Pty(s) => write!(f, "falha de PTY: {s}"),
             SpecterError::WindowNotFound(s) => write!(f, "janela não encontrada: {s}"),
+            SpecterError::Persist(s) => write!(f, "falha de persistência: {s}"),
+            SpecterError::Action(s) => write!(f, "falha na ação: {s}"),
         }
     }
 }

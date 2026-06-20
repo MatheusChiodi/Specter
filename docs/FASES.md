@@ -53,3 +53,25 @@ status: em-andamento
 - `cargo test` — **1/1 verde** (build inicial 3m24s; tauri 2.11 + webview2-com compilados).
 
 ---
+
+## FASE 2.1 — Backend core Rust ✅
+
+**Entregue:** módulos Rust por responsabilidade, todos ≤400 linhas, com testes.
+- `pty/` — ConPTY via `portable-pty 0.9`: `PtyManager` (spawn/write/resize/close/list/close_all), uma PTY por sessão, streaming da saída por callback (US-01/10/23/27).
+- `capture/` — stealth Win32 (`windows 0.62`): `apply_stealth` com `SetWindowDisplayAffinity(WDA_EXCLUDEFROMCAPTURE)` + detecção de build via `RtlGetVersion` (US-04).
+- `commands/` — 6 comandos Tauri: `pty_spawn` (com `Channel<Vec<u8>>`), `pty_write/resize/close/list`, `apply_capture_exclusion`.
+- `error.rs` — `SpecterError` serializável; `lib.rs` com `manage(PtyManager)` + `generate_handler`.
+
+**Decisões:**
+- Escopo das **janelas launcher/panel movido para a 2.2** (anda junto com a UI).
+- HWND passado como **ponteiro bruto** (`hwnd().0`) para desacoplar da versão da crate `windows` do Tauri.
+- Streaming por **callback → `Channel`** (não `emit` global): ordering por sessão.
+- `Drop for PtyManager` → `close_all` (sem processos órfãos no shutdown).
+
+**Versões:** `portable-pty 0.9.0` · `windows 0.62` (features `Win32_Foundation`, `Win32_UI_WindowsAndMessaging`, `Win32_System_SystemInformation`, `Wdk_System_SystemServices`).
+
+**Gate:** `cargo test` — **8/8 verdes, 0 warnings**.
+
+**Aprendizado:** teste de PTY não deve acoplar ao *rendering* do ConPTY (texto renderizado depende de timing/DSR). Validamos o nosso código — spawn/stream/write/resize/close — não o redraw do Windows.
+
+---

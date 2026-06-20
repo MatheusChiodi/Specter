@@ -1,30 +1,29 @@
-//! Specter — backend Tauri (scaffold).
+//! Specter — backend Tauri.
 //!
-//! Os módulos reais (`pty`, `windows`, `capture`, `commands`, `persistence`,
-//! `env_detect`, `shortcuts`) entram nas próximas fases. Por ora só o comando
-//! de exemplo e um teste de fumaça para o gate da FASE 2.0.
+//! Módulos por responsabilidade (regra de engenharia): `pty` (ConPTY),
+//! `capture` (stealth Win32), `commands` (camada exposta ao front) e `error`.
+//! As janelas launcher/panel entram na FASE 2.2 (junto com a UI).
 
-/// Comando de exemplo do scaffold (será substituído pelos comandos reais).
-#[tauri::command]
-fn greet(name: &str) -> String {
-    format!("Olá, {name}! Specter pronto.")
-}
+mod capture;
+mod commands;
+mod error;
+mod pty;
+
+use pty::PtyManager;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![greet])
+        .manage(PtyManager::new())
+        .invoke_handler(tauri::generate_handler![
+            commands::pty_spawn,
+            commands::pty_write,
+            commands::pty_resize,
+            commands::pty_close,
+            commands::pty_list,
+            commands::apply_capture_exclusion,
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn greet_inclui_o_nome() {
-        assert!(greet("Specter").contains("Specter"));
-    }
 }

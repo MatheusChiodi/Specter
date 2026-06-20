@@ -17,7 +17,7 @@ Local-first, zero-backend. Tudo roda na máquina.
 | **FASE 2.3** | Produtividade (paleta, snippets, histórico, perfis, autocomplete, cheat sheet, quick actions) + testes | ✅ **Finalizada** |
 | **FASE 2.4** | Janela/stealth (atalho global, boss key, opacidade, temas) + testes | ✅ **Finalizada** |
 | **FASE 2.5** | Sessões (abas, split, busca, log, notificação, processos, ambiente) + testes | ✅ **Finalizada** |
-| FASE 2.6 | Empacotamento no-admin (NSIS currentUser) + portátil | ⏳ |
+| **FASE 2.6** | Empacotamento no-admin (NSIS currentUser) + portátil | ✅ **Finalizada** |
 
 > **Gate de cada fase:** só avança com **testes unitários 100% verdes** e lógica sem erro. Ao concluir: README atualizado + commit + push.
 
@@ -53,6 +53,26 @@ Módulos em `src/components/`, persistidos via `src/store/persist.ts` (JSON na s
 | `Autocomplete/` | US-24 | Sugestões por prefixo a partir de histórico/snippets, navegáveis por teclado. |
 | `CheatSheet/` | US-25 | Cheat sheet do Claude Code, categorizado e pesquisável, com copiar/inserir. |
 | `QuickActions/` | US-26 | Ações sobre o cwd (Explorer, VS Code, copiar path), desabilitadas com tooltip quando a dependência falta. |
+
+## Instalação e uso (sem admin)
+
+Dois formatos, **nenhum exige administrador** (US-05):
+
+1. **Instalador per-user (NSIS):** execute `Specter_0.1.0_x64-setup.exe`. Instala em `%LOCALAPPDATA%`, registra em HKCU, sem UAC nem PATH global.
+2. **Portátil:** copie `src-tauri/target/release/specter.exe` para qualquer pasta e execute. Não instala nada (depende do WebView2, já presente no Windows 10+/11).
+
+### Build local
+
+```pwsh
+pnpm install          # dependências do front
+pnpm test             # testes do front (Vitest)
+cargo test --manifest-path src-tauri/Cargo.toml   # testes do backend
+pnpm tauri dev        # desenvolvimento
+pnpm tauri build      # gera o instalador NSIS + o exe portátil
+```
+
+Artefatos do build em `src-tauri/target/release/` (exe portátil) e
+`src-tauri/target/release/bundle/nsis/` (instalador).
 
 ## Documentação
 

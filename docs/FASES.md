@@ -147,3 +147,31 @@ status: em-andamento
 **Gate:** front `tsc` strict + **95/95** testes (21 arquivos); back `cargo test` **13/13** (11 + 2 de env parse), 0 warnings.
 
 ---
+
+## FASE 2.6 — Empacotamento no-admin + portátil ✅
+
+**Entregue:** build de produção validado, gerando os dois formatos da US-05.
+
+- **Instalador per-user:** `Specter_0.1.0_x64-setup.exe` (NSIS `installMode: currentUser`) — instala em `%LOCALAPPDATA%`, registro em **HKCU**, **sem UAC/admin**, sem PATH global. `targets: ["nsis"]` evita o `.msi` (WiX), que seria perMachine/admin.
+- **Portátil:** `src-tauri/target/release/specter.exe` (10,6 MB) roda standalone (depende do WebView2, presente no Win10+/11).
+- `README` documenta instalação e build.
+
+**Gate:** `pnpm tauri build` concluiu (release em ~4m53s; NSIS baixado e empacotado) + suíte completa verde (front 95/95, back 13/13).
+
+---
+
+## Definition of Done — situação final
+
+| Critério | Status |
+|----------|--------|
+| `US.md` + `ARQUITETURA.md` aprovados no portão | ✅ |
+| `.exe` instala sem admin (per-user) **e** modo portátil | ✅ (NSIS currentUser + exe standalone) |
+| Botão flutuante + painel always-on-top, invisíveis em screen share | ✅ (launcher/panel + `WDA_EXCLUDEFROMCAPTURE`) |
+| Terminal roda `claude` e comandos; seletor de pasta | ✅ (ConPTY + FolderPicker) |
+| Paleta de pré-comandos editável | ✅ (US-06) |
+| **≥ 20 funcionalidades extras** | ✅ **20 P1 (US-08..US-27) + US-29 (P2)** |
+| Zero `any`, arquivos ≤ 400 linhas, identidade visual | ✅ |
+
+**Pendência (bônus):** US-28 (drag&drop) — P2, follow-up.
+
+---

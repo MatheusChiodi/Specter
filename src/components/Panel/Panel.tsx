@@ -7,6 +7,7 @@ import {
 } from "@tauri-apps/plugin-notification";
 import Terminal, { type TerminalHandle } from "../Terminal";
 import FolderPicker from "../FolderPicker";
+import WindowControls from "../WindowControls";
 import TabBar from "./TabBar";
 import SearchBar from "./SearchBar";
 import ToolPanel, { type Tool, TOOL_LABELS } from "./ToolPanel";
@@ -28,9 +29,9 @@ import type { CaptureStatus } from "../../types/ipc";
 import type { Profile } from "../Profiles/types";
 
 /**
- * Painel principal (US-07): orquestra abas (US-10), split (US-23), busca
- * (US-21), export (US-20), tema/opacidade/atalhos (US-13..17), as ferramentas
- * de produtividade/ambiente e o aviso de stealth (US-04).
+ * Painel principal (US-07): barra de título com controles de janela (US-31),
+ * ações (pasta/busca/export/split), abas (US-10), ferramentas e terminal.
+ * Aplica tema/opacidade/atalhos (US-13..17), fonte (US-32) e responsividade.
  */
 export default function Panel(): JSX.Element {
   const { settings, update } = useSettings();
@@ -149,26 +150,37 @@ export default function Panel(): JSX.Element {
       style={{ opacity: settings.opacity }}
       className="flex h-screen flex-col overflow-hidden rounded-xl border border-white/10 bg-[var(--color-base)]/95 backdrop-blur-md"
     >
+      {/* Barra de título arrastável + controles de janela (US-31). */}
       <header
         data-tauri-drag-region
-        className="flex items-center gap-3 border-b border-white/10 px-3 py-2"
+        className="flex items-center justify-between gap-2 border-b border-white/10 px-3 py-1.5"
       >
         <span className="select-none text-sm font-bold tracking-tight">
           Spec<span className="text-[var(--color-accent)]">ter</span>
         </span>
-        <div className="min-w-0 flex-1">
-          <FolderPicker value={tabs.activeTab?.cwd ?? null} onChange={chooseCwd} />
-        </div>
-        <button type="button" onClick={() => setSearchOpen((v) => !v)} aria-label="Abrir busca" className={btn(searchOpen)}>
-          Buscar
-        </button>
-        <button type="button" onClick={() => void exportLog()} aria-label="Exportar log" className={btn(false)}>
-          Exportar
-        </button>
-        <button type="button" onClick={() => tabs.toggleSplit(tabs.activeId)} aria-label="Dividir terminal" aria-pressed={tabs.activeTab?.split ?? false} className={btn(tabs.activeTab?.split ?? false)}>
-          Split
-        </button>
+        <WindowControls />
       </header>
+
+      {/* Ações: seletor de pasta + busca/export/split (responsivo). */}
+      <div className="flex flex-wrap items-center gap-2 border-b border-white/10 px-3 py-2">
+        <div className="min-w-0 flex-1 basis-48">
+          <FolderPicker
+            value={tabs.activeTab?.cwd ?? null}
+            onChange={chooseCwd}
+          />
+        </div>
+        <div className="flex shrink-0 items-center gap-2">
+          <button type="button" onClick={() => setSearchOpen((v) => !v)} aria-label="Abrir busca" className={btn(searchOpen)}>
+            Buscar
+          </button>
+          <button type="button" onClick={() => void exportLog()} aria-label="Exportar log" className={btn(false)}>
+            Exportar
+          </button>
+          <button type="button" onClick={() => tabs.toggleSplit(tabs.activeId)} aria-label="Dividir terminal" aria-pressed={tabs.activeTab?.split ?? false} className={btn(tabs.activeTab?.split ?? false)}>
+            Split
+          </button>
+        </div>
+      </div>
 
       <nav className="flex flex-wrap gap-1 border-b border-white/10 px-3 py-1.5">
         {TOOL_LABELS.map((tool) => (
@@ -213,7 +225,7 @@ export default function Panel(): JSX.Element {
 
       <div className="flex min-h-0 flex-1">
         {activeTool && (
-          <aside className="w-80 shrink-0 overflow-y-auto border-r border-white/10 p-2">
+          <aside className="w-64 max-w-[80vw] shrink-0 overflow-y-auto border-r border-white/10 p-2 sm:w-72">
             <ToolPanel
               tool={activeTool}
               cwd={tabs.activeTab?.cwd ?? null}
@@ -242,12 +254,17 @@ export default function Panel(): JSX.Element {
                   cwd={tab.cwd}
                   initCommands={tab.initCommands}
                   env={tab.env}
+                  fontSize={settings.terminalFontSize}
                   onCommandComplete={onCommandComplete(tab.cwd)}
                 />
               </div>
               {tab.split && (
                 <div className="min-w-0 flex-1 border-l border-white/10">
-                  <Terminal cwd={tab.cwd} env={tab.env} />
+                  <Terminal
+                    cwd={tab.cwd}
+                    env={tab.env}
+                    fontSize={settings.terminalFontSize}
+                  />
                 </div>
               )}
             </div>

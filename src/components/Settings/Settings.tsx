@@ -115,6 +115,24 @@ function Settings({ settings, onUpdate }: SettingsProps): JSX.Element {
         />
       </div>
 
+      {/* US-32: tamanho da fonte do terminal (10–24) */}
+      <div className={fieldClass}>
+        <span className={labelClass}>
+          Fonte do terminal
+          <span className="ml-2 text-white/50">{settings.terminalFontSize}px</span>
+        </span>
+        <input
+          type="range"
+          aria-label="Tamanho da fonte do terminal"
+          min={10}
+          max={24}
+          step={1}
+          value={settings.terminalFontSize}
+          onChange={(e) => onUpdate({ terminalFontSize: Number(e.target.value) })}
+          className="w-44 accent-[var(--color-accent)]"
+        />
+      </div>
+
       {/* US-22: limiar de comando longo para notificação */}
       <div className={fieldClass}>
         <span className={labelClass}>Comando longo (ms)</span>

@@ -61,6 +61,17 @@ pub fn show_all(app: AppHandle) -> Result<()> {
     Ok(())
 }
 
+/// Minimiza o painel para a barra de tarefas (US-31).
+#[tauri::command]
+pub fn minimize_panel(app: AppHandle) -> Result<()> {
+    let panel = app
+        .get_webview_window(PANEL_LABEL)
+        .ok_or_else(|| SpecterError::WindowNotFound(PANEL_LABEL.to_string()))?;
+    panel
+        .minimize()
+        .map_err(|e| SpecterError::WindowNotFound(format!("minimize: {e}")))
+}
+
 /// Aplica a exclusão de captura a launcher e panel logo no startup (US-04).
 #[cfg(windows)]
 pub fn apply_stealth_all(app: &AppHandle) {

@@ -47,6 +47,7 @@ vi.mock("../../ipc", () => ({
   applyCaptureExclusion: vi.fn().mockResolvedValue("applied"),
   togglePanel: vi.fn(),
   hideAll: vi.fn(),
+  minimizePanel: vi.fn(),
   readTextFile: vi.fn(),
   writeTextFile: vi.fn(),
 }));
@@ -66,6 +67,8 @@ describe("Panel", () => {
     expect(screen.getByRole("button", { name: "Processos" })).toBeInTheDocument();
     expect(screen.getByLabelText("Exportar log")).toBeInTheDocument();
     expect(screen.getByLabelText("Nova aba")).toBeInTheDocument();
+    expect(screen.getByLabelText("Minimizar")).toBeInTheDocument();
+    expect(screen.getByLabelText("Fechar painel")).toBeInTheDocument();
     await waitFor(() => expect(applyCaptureExclusion).toHaveBeenCalled());
   });
 

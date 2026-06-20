@@ -160,6 +160,21 @@ status: em-andamento
 
 ---
 
+## FASE 2.7 — UI/UX, responsividade e QoL ✅
+
+**Motivação (feedback do usuário):** launcher aparecia retangular e não movia; painel sem controles de janela; layout interno mal resolvido.
+
+**Entregue:** US-30 (launcher circular arrastável), US-31 (controles de janela + layout responsivo), US-32 (ajuste de fonte do terminal).
+
+- **Correções-raiz:** `body` transparente (launcher vira bolinha real, cantos transparentes); arrastar via `startDragging` com **limiar de 6px** distinguindo clique de arrasto; `WindowControls` (minimizar/fechar) na barra de título; header dividido em **título arrastável + linha de ações** com `flex-wrap`; sidebar `w-64 sm:w-72 max-w-[80vw]`.
+- **Rust:** `minimize_panel` (US-31).
+- **Fundação (lead):** `body` transparente, `minimize_panel` + ipc, `settings.terminalFontSize`, `fontSize` no `useXterm`/`Terminal`.
+- **Agentes (fan-out):** `launcher-ui` (US-30), `winctrl` (US-31), `fontsize-dev` (US-32); integração do `Panel` pelo lead.
+
+**Gate:** front `tsc` strict + **100/100** testes (22 arquivos); back `cargo test` **13/13**, 0 warnings.
+
+---
+
 ## Definition of Done — situação final
 
 | Critério | Status |

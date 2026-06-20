@@ -17,6 +17,8 @@ export interface Settings {
   bossKey: string;
   /** Limiar (ms) para notificar a conclusão de um comando longo (US-22). */
   longCommandMs: number;
+  /** Tamanho da fonte do terminal em px (US-32). */
+  terminalFontSize: number;
 }
 
 /** Padrões da identidade Specter. */
@@ -28,6 +30,7 @@ export const DEFAULT_SETTINGS: Settings = {
   toggleShortcut: "Control+Space",
   bossKey: "Control+Shift+H",
   longCommandMs: 10000,
+  terminalFontSize: 14,
 };
 
 /** Limite mínimo de opacidade legível (US-16). */

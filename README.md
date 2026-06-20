@@ -18,6 +18,7 @@ Local-first, zero-backend. Tudo roda na máquina.
 | **FASE 2.4** | Janela/stealth (atalho global, boss key, opacidade, temas) + testes | ✅ **Finalizada** |
 | **FASE 2.5** | Sessões (abas, split, busca, log, notificação, processos, ambiente) + testes | ✅ **Finalizada** |
 | **FASE 2.6** | Empacotamento no-admin (NSIS currentUser) + portátil | ✅ **Finalizada** |
+| **FASE 2.7** | UI/UX: launcher circular arrastável, controles de janela, responsividade, ajuste de fonte | ✅ **Finalizada** |
 
 > **Gate de cada fase:** só avança com **testes unitários 100% verdes** e lógica sem erro. Ao concluir: README atualizado + commit + push.
 

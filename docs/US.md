@@ -289,6 +289,34 @@ status: draft
 
 ---
 
+## Épico: Qualidade de vida & Responsividade
+
+### US-30 — Launcher circular arrastável `P1`
+**História:** Como **dev**, quero que o botão flutuante seja uma bolinha que eu possa arrastar, para reposicioná-lo livremente na tela.
+**Critérios de Aceite:**
+- [ ] O launcher é um **círculo** real — sem fundo retangular (cantos da janela transparentes).
+- [ ] Arrastar o botão **move a janela**; soltar sem mover (clique) alterna o painel.
+- [ ] Distinção clara entre clique e arrasto por limiar de movimento (evita toggle acidental ao arrastar).
+- [ ] A posição definida persiste entre execuções.
+**Notas:** [[ARQUITETURA#2-modelo-de-janelas-launcher--panel]] · corrige US-03
+
+### US-31 — Controles de janela e layout responsivo `P1`
+**História:** Como **usuário**, quero controles de janela (minimizar/fechar) e um layout que se adapta ao tamanho, para usar o app de forma confortável.
+**Critérios de Aceite:**
+- [ ] Barra superior do painel com **minimizar** e **fechar (ocultar)** acessíveis e rotulados.
+- [ ] A barra superior é arrastável (move o painel).
+- [ ] O layout se adapta a larguras menores: toolbar/sidebar não quebram o conteúdo; nada é cortado.
+- [ ] A sidebar de ferramentas tem largura responsiva (`max-w` relativo) e é fechável.
+**Notas:** [[ARQUITETURA#2-modelo-de-janelas-launcher--panel]]
+
+### US-32 — Ajustes de qualidade de vida `P1`
+**História:** Como **dev**, quero ajustar a fonte do terminal e demais preferências de conforto, para adaptar o app ao meu gosto.
+**Critérios de Aceite:**
+- [ ] Tamanho da fonte do terminal configurável nas Configurações (faixa sã, ex.: 10–24); aplica a novas sessões.
+- [ ] O ajuste persiste em `settings.json`.
+- [ ] Convive com os ajustes existentes (tema, accent, opacidade, atalhos, limiar de comando longo).
+**Notas:** [[ARQUITETURA#7-persistência]] · estende US-17
+
 ## Rastreabilidade
 
 | US | Prioridade | Módulo principal |
@@ -302,4 +330,6 @@ status: draft
 | US-07 | P0 | `src/components/` (tema, onboarding) |
 | US-08..US-29 | P1/P2 | ver `## 9` em [[ARQUITETURA#9-rastreabilidade-us--módulo]] |
 
-> Total: 29 user stories (7 core P0 + 20 extras P1 + 2 bônus P2). DoD exige ≥20 extras entregues.
+> Total: 32 user stories (7 core P0 + 23 extras P1 + 2 bônus P2). DoD exige ≥20 extras entregues.
+>
+> US-30/31/32 (FASE 2.7) — qualidade de vida e responsividade: launcher circular arrastável, controles de janela + layout responsivo, ajustes (fonte do terminal).

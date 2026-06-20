@@ -11,6 +11,11 @@ export function setPanelAlwaysOnTop(value: boolean): Promise<void> {
   return invoke("set_panel_always_on_top", { value });
 }
 
+/** Minimiza o painel para a barra de tarefas (US-31). */
+export function minimizePanel(): Promise<void> {
+  return invoke("minimize_panel");
+}
+
 /** Boss key: oculta launcher e panel (US-14). */
 export function hideAll(): Promise<void> {
   return invoke("hide_all");

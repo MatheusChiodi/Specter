@@ -25,6 +25,8 @@ export interface TerminalProps {
   initCommands?: string[];
   /** Variáveis de ambiente extras (US-19). */
   env?: [string, string][];
+  /** Tamanho da fonte do terminal em px (US-32). */
+  fontSize?: number;
   /** Chamado ao concluir um comando (heurística): comando + duração (US-22/29). */
   onCommandComplete?: (command: string, durationMs: number) => void;
   /** Handle imperativo (React 19: ref como prop). */
@@ -36,6 +38,7 @@ export default function Terminal({
   shell = "powershell.exe",
   initCommands,
   env,
+  fontSize,
   onCommandComplete,
   ref,
 }: TerminalProps) {
@@ -44,6 +47,7 @@ export default function Terminal({
     shell,
     initCommands,
     env,
+    fontSize,
     onCommandComplete,
   });
 

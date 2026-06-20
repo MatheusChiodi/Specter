@@ -33,6 +33,23 @@ describe("Settings", () => {
     expect(patch.opacity).toBe(0.5);
   });
 
+  it("mexer no range de fonte do terminal chama onUpdate com terminalFontSize numérico", () => {
+    const onUpdate = vi.fn();
+    render(
+      <Settings settings={makeSettings({ terminalFontSize: 14 })} onUpdate={onUpdate} />,
+    );
+
+    const slider = screen.getByRole("slider", {
+      name: /tamanho da fonte do terminal/i,
+    });
+    fireEvent.change(slider, { target: { value: "18" } });
+
+    expect(onUpdate).toHaveBeenCalledTimes(1);
+    const patch = onUpdate.mock.calls[0][0] as Partial<SettingsType>;
+    expect(typeof patch.terminalFontSize).toBe("number");
+    expect(patch.terminalFontSize).toBe(18);
+  });
+
   it("marcar always-on-top chama onUpdate({alwaysOnTop:true}) e setPanelAlwaysOnTop(true)", async () => {
     const onUpdate = vi.fn();
     render(

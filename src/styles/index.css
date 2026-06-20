@@ -14,7 +14,9 @@ body,
 }
 
 body {
-  background: var(--color-base);
+  /* Transparente: o launcher vira uma bolinha (US-30) e o painel arredondado
+     mostra cantos transparentes. O fundo real fica no container do Panel. */
+  background: transparent;
   color: #e5e7eb;
   font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
   overflow: hidden;

@@ -30,6 +30,8 @@ export interface UseXtermOptions {
   initCommands?: string[];
   /** Variáveis de ambiente extras (US-19). */
   env?: [string, string][];
+  /** Tamanho da fonte do terminal em px (US-32). */
+  fontSize?: number;
   /**
    * Chamado quando um comando "termina" (heurística por ociosidade do output):
    * recebe o comando digitado e a duração em ms (US-22/29).
@@ -53,7 +55,13 @@ export interface UseXtermResult {
  * Guarda contra double-mount do StrictMode; cleanup faz `dispose()`+`ptyClose()`.
  */
 export function useXterm(options: UseXtermOptions = {}): UseXtermResult {
-  const { cwd = null, shell = "powershell.exe", initCommands, env } = options;
+  const {
+    cwd = null,
+    shell = "powershell.exe",
+    initCommands,
+    env,
+    fontSize = 14,
+  } = options;
 
   const containerRef = useRef<HTMLDivElement | null>(null);
   const termRef = useRef<Terminal | null>(null);
@@ -61,8 +69,8 @@ export function useXterm(options: UseXtermOptions = {}): UseXtermResult {
   const sessionRef = useRef<SessionId | null>(null);
   const bufferRef = useRef<string>("");
 
-  const optsRef = useRef({ cwd, shell, initCommands, env });
-  optsRef.current = { cwd, shell, initCommands, env };
+  const optsRef = useRef({ cwd, shell, initCommands, env, fontSize });
+  optsRef.current = { cwd, shell, initCommands, env, fontSize };
   const onCompleteRef = useRef(options.onCommandComplete);
   onCompleteRef.current = options.onCommandComplete;
 
@@ -78,7 +86,11 @@ export function useXterm(options: UseXtermOptions = {}): UseXtermResult {
   useEffect(() => {
     if (termRef.current || !containerRef.current) return;
 
-    const term = new Terminal({ theme: THEME, cursorBlink: true });
+    const term = new Terminal({
+      theme: THEME,
+      cursorBlink: true,
+      fontSize: optsRef.current.fontSize,
+    });
     termRef.current = term;
 
     const fit = new FitAddon();

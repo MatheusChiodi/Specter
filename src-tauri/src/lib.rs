@@ -40,6 +40,7 @@ pub fn run() {
             commands::apply_capture_exclusion,
             windowing::toggle_panel,
             windowing::set_panel_always_on_top,
+            windowing::minimize_panel,
             windowing::hide_all,
             windowing::show_all,
             persistence::store_get,

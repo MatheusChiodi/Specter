@@ -1,13 +1,13 @@
 //! Specter — backend Tauri.
 //!
-//! Módulos por responsabilidade (regra de engenharia): `pty` (ConPTY),
-//! `capture` (stealth Win32), `commands` (camada exposta ao front) e `error`.
-//! As janelas launcher/panel entram na FASE 2.2 (junto com a UI).
+//! Módulos por responsabilidade: `pty` (ConPTY), `capture` (stealth Win32),
+//! `windowing` (janelas launcher/panel), `commands` (camada exposta) e `error`.
 
 mod capture;
 mod commands;
 mod error;
 mod pty;
+mod windowing;
 
 use pty::PtyManager;
 
@@ -15,7 +15,14 @@ use pty::PtyManager;
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_dialog::init())
         .manage(PtyManager::new())
+        .setup(|_app| {
+            // Stealth aplicado desde o startup (US-04). No-op fora do Windows.
+            #[cfg(windows)]
+            windowing::apply_stealth_all(&_app.handle());
+            Ok(())
+        })
         .invoke_handler(tauri::generate_handler![
             commands::pty_spawn,
             commands::pty_write,
@@ -23,6 +30,7 @@ pub fn run() {
             commands::pty_close,
             commands::pty_list,
             commands::apply_capture_exclusion,
+            windowing::toggle_panel,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

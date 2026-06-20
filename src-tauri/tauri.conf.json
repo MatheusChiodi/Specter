@@ -12,9 +12,31 @@
   "app": {
     "windows": [
       {
+        "label": "panel",
         "title": "Specter",
-        "width": 900,
-        "height": 600
+        "width": 960,
+        "height": 640,
+        "minWidth": 480,
+        "minHeight": 320,
+        "decorations": false,
+        "transparent": true,
+        "alwaysOnTop": true,
+        "center": true,
+        "visible": true
+      },
+      {
+        "label": "launcher",
+        "title": "Specter Launcher",
+        "width": 56,
+        "height": 56,
+        "x": 40,
+        "y": 220,
+        "decorations": false,
+        "transparent": true,
+        "alwaysOnTop": true,
+        "skipTaskbar": true,
+        "resizable": false,
+        "visible": true
       }
     ],
     "security": {

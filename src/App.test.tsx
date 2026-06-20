@@ -1,17 +1,15 @@
 import { render, screen } from "@testing-library/react";
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
+
+vi.mock("./components/Panel", () => ({
+  default: () => <div data-testid="panel-mock" />,
+}));
+
 import App from "./App";
 
 describe("App", () => {
-  it("renderiza a marca Specter", () => {
+  it("renderiza o painel principal", () => {
     render(<App />);
-    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(
-      "Specter",
-    );
-  });
-
-  it("exibe a marca MChiodi", () => {
-    render(<App />);
-    expect(screen.getByText("MChiodi")).toBeInTheDocument();
+    expect(screen.getByTestId("panel-mock")).toBeInTheDocument();
   });
 });

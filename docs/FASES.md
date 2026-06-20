@@ -75,3 +75,24 @@ status: em-andamento
 **Aprendizado:** teste de PTY não deve acoplar ao *rendering* do ConPTY (texto renderizado depende de timing/DSR). Validamos o nosso código — spawn/stream/write/resize/close — não o redraw do Windows.
 
 ---
+
+## FASE 2.2 — Frontend core ✅
+
+**Entregue:** as duas janelas, a camada IPC tipada e os componentes core, ligando o front ao backend da 2.1.
+- **Rust** `windowing/`: janelas `launcher` (56px) e `panel` em `tauri.conf.json`; comando `toggle_panel` (US-03); `apply_stealth_all` no `setup` (US-04); plugin-dialog registrado.
+- **IPC** `src/ipc/` (tipado, zero `any`): `ptySpawn/Write/Resize/Close/List`, `togglePanel`, `applyCaptureExclusion` + `types/ipc.ts`.
+- **Componentes** (component-per-folder): `Terminal` (xterm + 3 addons, lifecycle StrictMode-safe — US-01), `Launcher` (botão arrastável — US-03), `FolderPicker` (dialog nativo — US-02), `Panel` (composição + banner de stealth — US-07/04).
+- `main.tsx` serve um único bundle para as duas janelas, decidindo o render pelo **label**.
+
+**Orquestração (fan-out real):** 3 agentes executores em paralelo (`term-dev`, `launcher-dev`, `folder-dev`) construíram os componentes com seus testes **enquanto** o `cargo test` recompilava. O lead revisou o código, integrou `Panel`/`App` e rodou o gate consolidado.
+
+**Decisões:**
+- Módulo Rust `windowing` (não `windows`) para não colidir com a crate `windows`.
+- Terminal **remonta via `key={cwd}`** ao trocar a pasta → nova sessão no cwd (US-02).
+- `HWND`/stealth aplicado no `setup` e reexposto por comando (banner informa se não suportado).
+
+**Versões:** `@xterm/xterm 6.0.0` · `addon-fit 0.11` · `addon-web-links 0.12` · `addon-search 0.16` · `@tauri-apps/plugin-dialog 2.7.1`.
+
+**Gate:** front `tsc` strict limpo + **13/13** testes (Terminal 3, Launcher 2, FolderPicker 4, Panel 3, App 1); back `cargo test` **8/8**.
+
+---

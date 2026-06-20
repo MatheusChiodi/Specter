@@ -13,7 +13,7 @@ Local-first, zero-backend. Tudo roda na máquina.
 | **FASE 1** | Documentação (`US.md` + `ARQUITETURA.md`) + portão de auditoria | ✅ **Finalizada** |
 | **FASE 2.0** | Scaffold (Tauri 2 + React 19 + Vite + TS + Tailwind 4) + setup de testes | ✅ **Finalizada** |
 | **FASE 2.1** | Backend core Rust (PTY/ConPTY, stealth, commands) + testes | ✅ **Finalizada** |
-| FASE 2.2 | Frontend core (terminal, botão flutuante, painel, seletor de pasta) + testes | ⏳ |
+| **FASE 2.2** | Frontend core (terminal, botão flutuante, painel, seletor de pasta) + testes | ✅ **Finalizada** |
 | FASE 2.3 | Produtividade (paleta, snippets, histórico, perfis, cheat sheet…) + testes | ⏳ |
 | FASE 2.4 | Janela/stealth (atalho global, boss key, opacidade, temas) + testes | ⏳ |
 | FASE 2.5 | Sessões (abas, split, busca, log, notificação, processos, ambiente) + testes | ⏳ |

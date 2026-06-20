@@ -7,12 +7,23 @@ import History from "../History";
 import Profiles from "../Profiles";
 import CheatSheet from "../CheatSheet";
 import QuickActions from "../QuickActions";
-import { applyCaptureExclusion } from "../../ipc";
+import Settings from "../Settings";
+import { useTheme } from "../Settings/useTheme";
+import { useSettings } from "../../store/settings";
+import { useShortcuts } from "../../hooks/useShortcuts";
+import { applyCaptureExclusion, togglePanel, hideAll } from "../../ipc";
 import type { CaptureStatus } from "../../types/ipc";
 import type { Profile } from "../Profiles/types";
 
 /** Ferramentas da toolbar lateral. */
-type Tool = "commands" | "snippets" | "history" | "profiles" | "cheat" | "quick";
+type Tool =
+  | "commands"
+  | "snippets"
+  | "history"
+  | "profiles"
+  | "cheat"
+  | "quick"
+  | "config";
 
 const TOOLS: ReadonlyArray<{ id: Tool; label: string }> = [
   { id: "commands", label: "Comandos" },
@@ -21,19 +32,29 @@ const TOOLS: ReadonlyArray<{ id: Tool; label: string }> = [
   { id: "profiles", label: "Perfis" },
   { id: "cheat", label: "Cheat Sheet" },
   { id: "quick", label: "Ações" },
+  { id: "config", label: "Config" },
 ];
 
 /**
  * Painel principal (US-07): cabeçalho arrastável + seletor de pasta (US-02) +
- * toolbar de produtividade (US-06/08/09/12/25/26) + terminal (US-01) + aviso
- * de stealth (US-04). Renderizado na janela `panel`.
+ * toolbar de produtividade + terminal (US-01) + aviso de stealth (US-04).
+ * Aplica tema/accent (US-17), opacidade (US-16) e atalhos globais (US-13/14).
  */
 export default function Panel(): JSX.Element {
+  const { settings, update } = useSettings();
   const [cwd, setCwd] = useState<string | null>(null);
   const [initCommands, setInitCommands] = useState<string[]>([]);
   const [capture, setCapture] = useState<CaptureStatus | null>(null);
   const [activeTool, setActiveTool] = useState<Tool | null>(null);
   const termRef = useRef<TerminalHandle>(null);
+
+  useTheme(settings);
+  useShortcuts({
+    toggleShortcut: settings.toggleShortcut,
+    bossKey: settings.bossKey,
+    onToggle: () => void togglePanel(),
+    onBoss: () => void hideAll(),
+  });
 
   useEffect(() => {
     // Reaplica/checa o stealth e informa o usuário se não suportado (US-04).
@@ -73,13 +94,18 @@ export default function Panel(): JSX.Element {
         return <CheatSheet onInsert={insert} />;
       case "quick":
         return <QuickActions cwd={cwd} />;
+      case "config":
+        return <Settings settings={settings} onUpdate={update} />;
       default:
         return null;
     }
   }
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden rounded-xl border border-white/10 bg-[#0a0a0f]/95 backdrop-blur-md">
+    <div
+      style={{ opacity: settings.opacity }}
+      className="flex h-screen flex-col overflow-hidden rounded-xl border border-white/10 bg-[var(--color-base)]/95 backdrop-blur-md"
+    >
       <header
         data-tauri-drag-region
         className="flex items-center gap-3 border-b border-white/10 px-3 py-2"

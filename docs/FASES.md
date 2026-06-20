@@ -114,3 +114,19 @@ status: em-andamento
 **Gate:** front `tsc` strict + **56/56** testes (12 arquivos); back `cargo test` **11/11** (8 + 3 de persistência), 0 warnings.
 
 ---
+
+## FASE 2.4 — Janela/stealth ✅
+
+**Entregue:** US-13 (atalho global), US-14 (boss key), US-15 (always-on-top), US-16 (opacidade), US-17 (temas).
+
+- **Rust:** `windowing` ganhou `set_panel_always_on_top`, `hide_all`, `show_all`; plugin `tauri-plugin-global-shortcut` registrado; capability com permissões `global-shortcut:*`.
+- **Front:** `types/settings.ts` + `store/settings.ts` (`useSettings`, persiste `settings.json`); `Settings` (UI controlada) + `useTheme` (aplica `data-theme`/`--color-accent`); `hooks/useShortcuts` (registra atalhos via plugin JS, dispara só em `Pressed`, refs nos callbacks).
+- **Integração:** `Panel` chama `useSettings`/`useTheme`/`useShortcuts`, aplica `opacity` no container, ganhou aba **Config**; toggle e boss key ligados a `togglePanel`/`hideAll`. Tema claro no `index.css` (`[data-theme="light"]`).
+
+**Orquestração:** 2 agentes (`settings-dev`, `shortcut-dev`) em paralelo durante o `cargo test`.
+
+**Aprendizado (reviewer catch):** o `tsc` strict pegou **TS1448** — o componente `Settings` colidia com o `import type { Settings }` sob `isolatedModules`, tornando o `export { default }` ambíguo. Os 66 testes passavam (esbuild ignora tipos); só o typecheck detectou. Corrigido com alias (`Settings as AppSettings`). Reforça por que o gate tem **typecheck + testes**.
+
+**Gate:** front `tsc` strict + **66/66** testes (14 arquivos: +Settings 5, +useShortcuts 5); back `cargo test` **11/11**, 0 warnings.
+
+---

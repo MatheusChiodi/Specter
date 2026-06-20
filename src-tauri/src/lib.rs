@@ -19,6 +19,7 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_global_shortcut::Builder::new().build())
         .manage(PtyManager::new())
         .setup(|_app| {
             // Stealth aplicado desde o startup (US-04). No-op fora do Windows.
@@ -34,6 +35,9 @@ pub fn run() {
             commands::pty_list,
             commands::apply_capture_exclusion,
             windowing::toggle_panel,
+            windowing::set_panel_always_on_top,
+            windowing::hide_all,
+            windowing::show_all,
             persistence::store_get,
             persistence::store_set,
             persistence::store_remove,

@@ -1,5 +1,6 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { DEFAULT_SETTINGS } from "../../types/settings";
 
 vi.mock("../Terminal", () => ({
   default: () => <div data-testid="terminal-mock" />,
@@ -9,8 +10,19 @@ vi.mock("../FolderPicker", () => ({
     <div data-testid="folderpicker-mock">{value ?? "none"}</div>
   ),
 }));
+vi.mock("../../store/settings", () => ({
+  useSettings: () => ({
+    settings: DEFAULT_SETTINGS,
+    loading: false,
+    update: vi.fn(),
+  }),
+}));
+vi.mock("../Settings/useTheme", () => ({ useTheme: vi.fn() }));
+vi.mock("../../hooks/useShortcuts", () => ({ useShortcuts: vi.fn() }));
 vi.mock("../../ipc", () => ({
   applyCaptureExclusion: vi.fn().mockResolvedValue("applied"),
+  togglePanel: vi.fn(),
+  hideAll: vi.fn(),
 }));
 
 import Panel from "./Panel";
@@ -24,10 +36,8 @@ describe("Panel", () => {
     expect(screen.getByTestId("folderpicker-mock")).toBeInTheDocument();
     expect(screen.getByTestId("terminal-mock")).toBeInTheDocument();
     expect(screen.getByText("MChiodi")).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: "Comandos" }),
-    ).toBeInTheDocument();
-    // Drena o efeito de stealth dentro de act para evitar warning.
+    expect(screen.getByRole("button", { name: "Comandos" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Config" })).toBeInTheDocument();
     await waitFor(() => expect(applyCaptureExclusion).toHaveBeenCalled());
   });
 

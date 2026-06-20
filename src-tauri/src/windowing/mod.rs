@@ -28,6 +28,39 @@ pub fn toggle_panel(app: AppHandle) -> Result<bool> {
     }
 }
 
+/// Liga/desliga o always-on-top do painel (US-15).
+#[tauri::command]
+pub fn set_panel_always_on_top(app: AppHandle, value: bool) -> Result<()> {
+    let panel = app
+        .get_webview_window(PANEL_LABEL)
+        .ok_or_else(|| SpecterError::WindowNotFound(PANEL_LABEL.to_string()))?;
+    panel
+        .set_always_on_top(value)
+        .map_err(|e| SpecterError::WindowNotFound(format!("set_always_on_top: {e}")))
+}
+
+/// Boss key: oculta launcher e panel instantaneamente (US-14).
+#[tauri::command]
+pub fn hide_all(app: AppHandle) -> Result<()> {
+    for label in [LAUNCHER_LABEL, PANEL_LABEL] {
+        if let Some(window) = app.get_webview_window(label) {
+            let _ = window.hide();
+        }
+    }
+    Ok(())
+}
+
+/// Restaura launcher e panel após a boss key (US-14).
+#[tauri::command]
+pub fn show_all(app: AppHandle) -> Result<()> {
+    for label in [LAUNCHER_LABEL, PANEL_LABEL] {
+        if let Some(window) = app.get_webview_window(label) {
+            let _ = window.show();
+        }
+    }
+    Ok(())
+}
+
 /// Aplica a exclusão de captura a launcher e panel logo no startup (US-04).
 #[cfg(windows)]
 pub fn apply_stealth_all(app: &AppHandle) {

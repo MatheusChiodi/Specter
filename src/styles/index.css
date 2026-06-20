@@ -19,3 +19,12 @@ body {
   font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
   overflow: hidden;
 }
+
+/* Tema claro (US-17): alterna a base mantendo o accent configurável. */
+:root[data-theme="light"] {
+  --color-base: #f4f4f6;
+}
+
+:root[data-theme="light"] body {
+  color: #18181b;
+}
